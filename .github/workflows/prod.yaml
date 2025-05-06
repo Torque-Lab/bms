@@ -1,0 +1,25 @@
+
+name: deploy to saging
+
+on:
+  push:
+   branches:
+      - "main"
+
+jobs:
+  redeploy_everything:
+     name: deploying everything to clustor
+
+     steps:
+      - name: ssh into server
+      # ADD ssh private_key of ec2 in settings of github
+      - run: |
+        echo ${{secrets.SSH_PRIVATE_KEY}} &> ~/ssh_key
+        ssh -i ~/ssh_key root @12.34.55.66
+        cd bms/ && git pull
+        pnpm install pnpm run build
+        pm2 restart frontend
+        pm2 restart http-server
+        pm2 restart ws -server
+
+        
